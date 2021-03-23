@@ -13,8 +13,12 @@ window.onload = async () => {
 
     chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    function: getPageBackgroundColor, getPageFontFamily
+    function: getPageBackgroundColor,
     });
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: getPageFontFamily,
+        });
 }
 
 // When the button is clicked, inject setPageBackgroundColor into current page
@@ -42,8 +46,12 @@ changeBack.addEventListener("click", async () => {
 
     chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    function: setPageBackgroundColorBack, setPageFontFamilyBack
+    function: setPageBackgroundColorBack,
     });
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: setPageFontFamilyBack,
+        });
 });
 
 // remove CSS

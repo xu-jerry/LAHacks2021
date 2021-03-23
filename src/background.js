@@ -1,5 +1,5 @@
 let color = '#3aa757';
-let fontFamily = "comic sans, cursive";
+let fontFamily = "courier new, monospace";
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({ color });
