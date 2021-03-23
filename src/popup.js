@@ -7,7 +7,7 @@ chrome.storage.sync.get("color", ({ color }) => {
     changeColor.style.backgroundColor = color;
 });
 
-// get previous colors and font familiess
+// get previous colors and font families
 window.onload = async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -76,6 +76,7 @@ function setPageBackgroundColor() {
 function setPageFontFamily() {
     chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
         document.body.style.fontFamily = fontFamily;
+        console.log(fontFamily);
     });
 }
 
