@@ -8,7 +8,7 @@ chrome.storage.sync.get("color", ({ color }) => {
 });
 changeBack.style.backgroundColor = "red";
 
-// get previous colors
+// get previous colors and font families
 window.onload = async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -16,6 +16,10 @@ window.onload = async () => {
     target: { tabId: tab.id },
     function: setup,
     });
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: getPageFontFamily,
+        });
 }
 
 // When the button is clicked, refresh page with script active
@@ -30,7 +34,17 @@ changeColor.addEventListener("click", async () => {
     });
 });
 
-// refresh page with script inactive
+changeFontFamily.addEventListener("click", async () => {
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    chrome.scripting. executeScript({
+        target: {tabId: tab.id },
+        function: setPageFontFamily,
+    });
+});
+
+// change color and font family back when second button is pressed
+
 changeBack.addEventListener("click", async () => {
     active = false;
     chrome.storage.sync.set({ active });
@@ -40,6 +54,10 @@ changeBack.addEventListener("click", async () => {
     target: { tabId: tab.id },
     function: refreshPage,
     });
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: setPageFontFamilyBack,
+        });
 });
 
 // remove CSS
@@ -63,6 +81,7 @@ function setPageBackgroundColor() {
 }
 */
 
+
 function refreshPage() {
     chrome.storage.sync.get("active", ({ active }) => {
         // different cases for whether we want script to be active
@@ -77,6 +96,20 @@ function refreshPage() {
                 });
         }
     });
+
+function setPageFontFamily() {
+    chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
+        document.body.style.fontFamily = fontFamily;
+        console.log(fontFamily);
+    });
+}
+
+/*
+function setPageBackgroundColor() {
+    chrome.storage.sync.get("prevColor", ({ prevColor }) => {
+        document.body.style.backgroundColor = prevColor;
+        });
+
 }
 
 function resetCSS() {
@@ -96,9 +129,37 @@ function resetCSS() {
     head.appendChild(link);
 }
 
+
 function setup() {
+  let prevColor = document.body.style.backgroundColor;
+  chrome.storage.sync.set({ prevColor });
+  let active = false;
+  chrome.storage.sync.set({ active });
+  let prevFontFmily = document.body.style.fontFamily;
+  chrome.storage.sync.set({ fontFamily });
+}
+
+function setPageBackgroundColorBack() {
+    chrome.storage.sync.get("prevColor", ({ prevColor }) => {
+    document.body.style.backgroundColor = prevColor;
+    });
+}
+
+function setPageFontFamilyBack() {
+    chrome.storage.sync.get("prevFontFamily", ({ prevFontFamily})=> {
+        document.body.style.fontFamily = prevFontFamily;
+    })
+}
+
+function getPageBackgroundColor() {
+
     let prevColor = document.body.style.backgroundColor;
     chrome.storage.sync.set({ prevColor });
-    let active = false;
-    chrome.storage.sync.set({ active });
+    console.log(prevColor);
+}
+
+function getPageFontFamily() {
+    let prevFontFamily= document.body.style.fontFamily;
+    chrome.storage.sync.set({ prevFontFamily});
+    console.log(prevFontFamily);
 }
