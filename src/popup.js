@@ -96,6 +96,7 @@ function refreshPage() {
                 });
         }
     });
+}
 
 function setPageFontFamily() {
     chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
@@ -111,7 +112,7 @@ function setPageBackgroundColor() {
         });
 
 }
-
+*/
 function resetCSS() {
     document.querySelectorAll('style,link[rel="stylesheet"]').forEach(item => item.remove());
     /*
