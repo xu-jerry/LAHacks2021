@@ -6,6 +6,7 @@ let remove = document.getElementById("remove");
 chrome.storage.sync.get("color", ({ color }) => {
     changeColor.style.backgroundColor = color;
 });
+changeBack.style.backgroundColor = "red";
 
 // get previous colors
 window.onload = async () => {
@@ -13,27 +14,31 @@ window.onload = async () => {
 
     chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    function: getPageBackgroundColor,
+    function: setup,
     });
 }
 
-// When the button is clicked, inject setPageBackgroundColor into current page
+// When the button is clicked, refresh page with script active
 changeColor.addEventListener("click", async () => {
+    active = true;
+    chrome.storage.sync.set({ active });
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
     chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    function: setPageBackgroundColor,
+    function: refreshPage,
     });
 });
 
-// change color back when second button is pressed
+// refresh page with script inactive
 changeBack.addEventListener("click", async () => {
+    active = false;
+    chrome.storage.sync.set({ active });
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
     chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    function: setPageBackgroundColorBack,
+    function: refreshPage,
     });
 });
 
@@ -47,6 +52,7 @@ remove.addEventListener("click", async () => {
     });
 });
 
+/*
 
 // The body of this function will be executed as a content script inside the
 // current page
@@ -55,33 +61,44 @@ function setPageBackgroundColor() {
     document.body.style.backgroundColor = color;
     });
 }
-
-
-/*
-function setPageBackgroundColor() {
-    chrome.storage.sync.get("prevColor", ({ prevColor }) => {
-        document.body.style.backgroundColor = prevColor;
-        });
-}
 */
 
-function resetCSS() {
-    document.querySelectorAll('style,link[rel="stylesheet"]').forEach(item => item.remove());
-}
-
-function setPageBackgroundColorBack() {
-    chrome.storage.sync.get("prevColor", ({ prevColor }) => {
-    document.body.style.backgroundColor = prevColor;
+function refreshPage() {
+    chrome.storage.sync.get("active", ({ active }) => {
+        // different cases for whether we want script to be active
+        if (active) {
+            chrome.storage.sync.get("color", ({ color }) => {
+                document.body.style.backgroundColor = color;
+                });
+        }
+        else {
+            chrome.storage.sync.get("prevColor", ({ prevColor }) => {
+                document.body.style.backgroundColor = prevColor;
+                });
+        }
     });
 }
 
-function getPageBackgroundColor() {
-    let prevColor = document.body.style.backgroundColor;
+function resetCSS() {
+    document.querySelectorAll('style,link[rel="stylesheet"]').forEach(item => item.remove());
     /*
-    if (!prevColor) {
-        prevColor = '#FFFFFF';
-    }
+    let cur = document.body.style;
+    cur.backgroundColor = 'gray';
     */
+    var cssId = 'myCss';  // you could encode the css path itself to generate id..
+    var head  = document.getElementsByTagName('head')[0];
+    var link  = document.createElement('link');
+    link.id   = cssId;
+    link.rel  = 'stylesheet';
+    link.type = 'text/css';
+    link.href = 'https://www.w3schools.com/w3css/4/w3.css';
+    link.media = 'all';
+    head.appendChild(link);
+}
+
+function setup() {
+    let prevColor = document.body.style.backgroundColor;
     chrome.storage.sync.set({ prevColor });
-    console.log(prevColor);
+    let active = false;
+    chrome.storage.sync.set({ active });
 }
