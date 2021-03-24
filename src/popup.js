@@ -16,10 +16,6 @@ window.onload = async () => {
     target: { tabId: tab.id },
     function: setup,
     });
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: getPageFontFamily,
-        });
 }
 
 // When the button is clicked, refresh page with script active
@@ -54,10 +50,6 @@ changeBack.addEventListener("click", async () => {
     target: { tabId: tab.id },
     function: refreshPage,
     });
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: setPageFontFamilyBack,
-        });
 });
 
 // remove CSS
@@ -89,11 +81,17 @@ function refreshPage() {
             chrome.storage.sync.get("color", ({ color }) => {
                 document.body.style.backgroundColor = color;
                 });
+            chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
+                document.body.style.fontFamily = fontFamily;
+            });
         }
         else {
             chrome.storage.sync.get("prevColor", ({ prevColor }) => {
                 document.body.style.backgroundColor = prevColor;
                 });
+            chrome.storage.sync.get("prevFontFamily", ({ prevFontFamily }) => {
+                document.body.style.fontFamily = prevFontFamily;
+            });
         }
     });
 }
@@ -136,31 +134,6 @@ function setup() {
   chrome.storage.sync.set({ prevColor });
   let active = false;
   chrome.storage.sync.set({ active });
-  let prevFontFmily = document.body.style.fontFamily;
-  chrome.storage.sync.set({ fontFamily });
-}
-
-function setPageBackgroundColorBack() {
-    chrome.storage.sync.get("prevColor", ({ prevColor }) => {
-    document.body.style.backgroundColor = prevColor;
-    });
-}
-
-function setPageFontFamilyBack() {
-    chrome.storage.sync.get("prevFontFamily", ({ prevFontFamily})=> {
-        document.body.style.fontFamily = prevFontFamily;
-    })
-}
-
-function getPageBackgroundColor() {
-
-    let prevColor = document.body.style.backgroundColor;
-    chrome.storage.sync.set({ prevColor });
-    console.log(prevColor);
-}
-
-function getPageFontFamily() {
-    let prevFontFamily= document.body.style.fontFamily;
-    chrome.storage.sync.set({ prevFontFamily});
-    console.log(prevFontFamily);
+  let prevFontFamily = document.body.style.fontFamily;
+  chrome.storage.sync.set({ prevFontFamily });
 }
