@@ -26,7 +26,7 @@ changeColor.addEventListener("click", async () => {
 
     chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    function: refreshPage,
+    function: setPageBackgroundColor,
     });
 });
 
@@ -62,16 +62,7 @@ remove.addEventListener("click", async () => {
     });
 });
 
-/*
 
-// The body of this function will be executed as a content script inside the
-// current page
-function setPageBackgroundColor() {
-    chrome.storage.sync.get("color", ({ color }) => {
-    document.body.style.backgroundColor = color;
-    });
-}
-*/
 
 
 function refreshPage() {
@@ -96,6 +87,15 @@ function refreshPage() {
     });
 }
 
+
+// The body of this function will be executed as a content script inside the
+// current page
+function setPageBackgroundColor() {
+    chrome.storage.sync.get("color", ({ color }) => {
+    document.body.style.backgroundColor = color;
+    });
+}
+
 function setPageFontFamily() {
     chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
         document.body.style.fontFamily = fontFamily;
@@ -103,7 +103,7 @@ function setPageFontFamily() {
     });
 }
 
-/*
+/* this one is not good because it uses prevcolor. use other setPageBackgroundColor function above
 function setPageBackgroundColor() {
     chrome.storage.sync.get("prevColor", ({ prevColor }) => {
         document.body.style.backgroundColor = prevColor;
