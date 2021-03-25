@@ -17,7 +17,7 @@ window.onload = async () => {
 }
 
 // When the button is clicked, refresh page with script active
-changeColor.addEventListener("input", async () => {
+changeColor.addEventListener("change", async () => {
     let diff = changeColor.value;
     chrome.storage.sync.set({ diff });
 
