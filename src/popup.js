@@ -6,7 +6,7 @@ chrome.storage.sync.get("color", ({ color }) => {
     changeColor.style.backgroundColor = color;
 });
 
-// get previous colors
+// get previous colors and font families
 window.onload = async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -17,10 +17,34 @@ window.onload = async () => {
 }
 
 // When the button is clicked, refresh page with script active
+
 changeColor.addEventListener("change", async () => {
     let diff = changeColor.value;
     chrome.storage.sync.set({ diff });
 
+
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    function: refreshPage,
+    });
+});
+
+changeFontFamily.addEventListener("click", async () => {
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    chrome.scripting. executeScript({
+        target: {tabId: tab.id },
+        function: setPageFontFamily,
+    });
+});
+
+// change color and font family back when second button is pressed
+
+changeBack.addEventListener("click", async () => {
+    active = false;
+    chrome.storage.sync.set({ active });
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
     chrome.scripting.executeScript({
@@ -40,6 +64,25 @@ remove.addEventListener("click", async () => {
 });
 
 function refreshPage() {
+  ////////////////////////
+  // font stuff
+  ////////////////////////
+  chrome.storage.sync.get("active", ({ active }) => {
+        // different cases for whether we want script to be active
+        if (active) {
+            chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
+                document.body.style.fontFamily = fontFamily;
+            });
+        }
+        else {
+            chrome.storage.sync.get("prevFontFamily", ({ prevFontFamily }) => {
+                document.body.style.fontFamily = prevFontFamily;
+            });
+        }
+  });
+  ////////////////////////
+  // color stuff
+  ////////////////////////
     chrome.storage.sync.get("diff", ({ diff }) => {
         chrome.storage.sync.get("prevColor", ({ prevColor }) => {
             document.body.style.backgroundColor = RGBToHex(hexToRGB(prevColor), diff);
@@ -101,6 +144,30 @@ function refreshPage() {
     }
 }
 
+
+// The body of this function will be executed as a content script inside the
+// current page
+function setPageBackgroundColor() {
+    chrome.storage.sync.get("color", ({ color }) => {
+    document.body.style.backgroundColor = color;
+    });
+}
+
+function setPageFontFamily() {
+    chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
+        document.body.style.fontFamily = fontFamily;
+        console.log(fontFamily);
+    });
+}
+
+/* this one is not good because it uses prevcolor. use other setPageBackgroundColor function above
+function setPageBackgroundColor() {
+    chrome.storage.sync.get("prevColor", ({ prevColor }) => {
+        document.body.style.backgroundColor = prevColor;
+        });
+
+}
+*/
 function resetCSS() {
     // reset CSS
     document.querySelectorAll('style,link[rel="stylesheet"]').forEach(item => item.remove());
@@ -117,7 +184,10 @@ function resetCSS() {
     head.appendChild(link);
 }
 
+
 function setup() {
+  let prevFontFamily = document.body.style.fontFamily;
+  chrome.storage.sync.set({ prevFontFamily });
     chrome.storage.local.get("prevColor", () => {
         if (!(chrome.runtime.lastError))
         {
