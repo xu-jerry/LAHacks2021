@@ -61,9 +61,6 @@ function refreshPage() {
         let sep = rgb.indexOf(",") > -1 ? "," : " ";
         // Turn "rgb(r,g,b)" into [r,g,b]
         rgb = rgb.substr(4).split(")")[0].split(sep);
-        console.log(rgb[0]);
-        console.log(rgb[1]);
-        console.log(rgb[2]);
 
         // changing colors HERE
         let diff = 100;
@@ -74,7 +71,6 @@ function refreshPage() {
         let r = (+rgb[0]).toString(16),
             g = (+rgb[1]).toString(16),
             b = (+rgb[2]).toString(16);
-        
 
         if (r.length == 1)
             r = "0" + r;
@@ -101,6 +97,11 @@ function refreshPage() {
           g = "0x" + h[3] + h[4];
           b = "0x" + h[5] + h[6];
         }
+        // not hex form
+        else {
+            return h;
+        }
+
         return "rgb("+ +r + "," + +g + "," + +b + ")";
     }
 }
@@ -122,15 +123,20 @@ function resetCSS() {
 }
 
 function setup() {
-    chrome.storage.sync.get("setup", (setup)=>{
+    // checks if already set up
+    chrome.storage.sync.get("setup", ({setup})=>{
         if (setup === true) {
             return;
         }
     });
+
     let prevColor = document.body.style.backgroundColor;
+
+    // if no prevColor, assume white
     if (prevColor === undefined || prevColor === "") {
         prevColor = "#FFFFFF";
     }
+
     chrome.storage.sync.set({ prevColor });
     let active = false;
     chrome.storage.sync.set({ active });
