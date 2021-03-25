@@ -17,11 +17,10 @@ window.onload = async () => {
 }
 
 // When the button is clicked, refresh page with script active
-changeColor.addEventListener("click", async () => {
-    chrome.storage.sync.get("active", ({active}) => {
-        active = !active;
-        chrome.storage.sync.set({ active });
-    });
+changeColor.addEventListener("input", async () => {
+    let diff = changeColor.value;
+    chrome.storage.sync.set({ diff });
+
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
     chrome.scripting.executeScript({
@@ -41,36 +40,32 @@ remove.addEventListener("click", async () => {
 });
 
 function refreshPage() {
-    chrome.storage.sync.get("active", ({ active }) => {
-        // different cases for whether we want script to be active
-        if (active) {
-            chrome.storage.sync.get("prevColor", ({ prevColor }) => {
-                document.body.style.backgroundColor = RGBToHex(hexToRGB(prevColor));
-                });
-        }
-        else {
-            chrome.storage.sync.get("prevColor", ({ prevColor }) => {
-                document.body.style.backgroundColor = prevColor;
-                });
-        }
+    chrome.storage.sync.get("diff", ({ diff }) => {
+        chrome.storage.sync.get("prevColor", ({ prevColor }) => {
+            document.body.style.backgroundColor = RGBToHex(hexToRGB(prevColor), diff);
+        });
     });
 
     // helper functions for color manipulation
-    function RGBToHex(rgb) {
+    function RGBToHex(rgb, diff) {
         // Choose correct separator
         let sep = rgb.indexOf(",") > -1 ? "," : " ";
         // Turn "rgb(r,g,b)" into [r,g,b]
         rgb = rgb.substr(4).split(")")[0].split(sep);
 
-        // changing colors HERE
-        let diff = 100;
+        let r = (+rgb[0]).toString(16),
+        g = (+rgb[1]).toString(16),
+        b = (+rgb[2]).toString(16);
+
+        // changing colors
         rgb[0] = Math.max(0, rgb[0] - diff);
         rgb[1] = Math.max(0, rgb[1] - diff);
         rgb[2] = Math.max(0, rgb[2] - diff);
 
-        let r = (+rgb[0]).toString(16),
-            g = (+rgb[1]).toString(16),
-            b = (+rgb[2]).toString(16);
+
+        r = (+rgb[0]).toString(16),
+        g = (+rgb[1]).toString(16),
+        b = (+rgb[2]).toString(16);
 
         if (r.length == 1)
             r = "0" + r;
@@ -78,7 +73,7 @@ function refreshPage() {
             g = "0" + g;
         if (b.length == 1)
             b = "0" + b;
-        
+
         return "#" + r + g + b;
     }
 
@@ -123,13 +118,12 @@ function resetCSS() {
 }
 
 function setup() {
-    // checks if already set up
-    chrome.storage.sync.get("setup", ({setup})=>{
-        if (setup === true) {
+    chrome.storage.local.get("prevColor", () => {
+        if (!(chrome.runtime.lastError))
+        {
             return;
         }
     });
-
     let prevColor = document.body.style.backgroundColor;
 
     // if no prevColor, assume white
@@ -138,8 +132,9 @@ function setup() {
     }
 
     chrome.storage.sync.set({ prevColor });
-    let active = false;
-    chrome.storage.sync.set({ active });
+
+    let diff = 0;
+    chrome.storage.sync.set({ diff });
     let setup = true;
     chrome.storage.sync.set({ setup });
 }
