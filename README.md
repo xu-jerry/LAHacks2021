@@ -2,7 +2,7 @@
 
 Chrome extension created for LA Hacks 2021, over the course of a week.
 
-![Icon](images/caligolarge.png)
+![Icon](src/images/caligolarge.png)
 
 ## Usage
 
