@@ -118,23 +118,29 @@ function resetCSS() {
 }
 
 function setup() {
-    chrome.storage.local.get("prevColor", () => {
-        if (!(chrome.runtime.lastError))
+    chrome.storage.local.get("prevColor", ({prevColor}) => {
+        if (prevColor != undefined)
         {
+            console.log("break");
+            console.log(prevColor);
             return;
         }
+        console.log(prevColor);
+        
+        prevColor = document.body.style.backgroundColor;
+        console.log(prevColor);
+    
+        // if no prevColor, assume white
+        if (prevColor === undefined || prevColor === "") {
+            prevColor = "#FFFFFF";
+        }
+    
+        console.log(prevColor);
+        chrome.storage.sync.set({ prevColor });
+    
+        let diff = 0;
+        chrome.storage.sync.set({ diff });
+        let setup = true;
+        chrome.storage.sync.set({ setup });
     });
-    let prevColor = document.body.style.backgroundColor;
-
-    // if no prevColor, assume white
-    if (prevColor === undefined || prevColor === "") {
-        prevColor = "#FFFFFF";
-    }
-
-    chrome.storage.sync.set({ prevColor });
-
-    let diff = 0;
-    chrome.storage.sync.set({ diff });
-    let setup = true;
-    chrome.storage.sync.set({ setup });
 }
