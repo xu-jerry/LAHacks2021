@@ -89,6 +89,10 @@ function refreshPage() {
         });
     });
 
+    chrome.storage,sync.get("color", ({ color }) => {
+        document.body.style.color = invertHex(color);
+    });
+
     // helper functions for color manipulation
     function RGBToHex(rgb, diff) {
         // Choose correct separator
@@ -142,6 +146,34 @@ function refreshPage() {
 
         return "rgb("+ +r + "," + +g + "," + +b + ")";
     }
+    // invert the hex color
+    function invertHex(h){
+        let r = 0, g = 0, b = 0;
+
+        // 3 digits
+        if (h.length == 4) {
+          r = 17*h[1];
+          g = 17*h[2];
+          b = 17*h[3];
+      
+        // 6 digits
+        } else if (h.length == 7) {
+          r = 16*h[1] + h[2];
+          g = 16*h[3] + h[4];
+          b = 16*h[5] + h[6];
+        }
+        // not hex form
+        else {
+            return h;
+        }
+        // invert
+        r = 255-r;
+        g = 255-g;
+        b = 255-b;
+        //convert back to hex form
+        h = "" + h[0] + r + g + b;
+        return h;
+    }
 }
 
 
@@ -153,6 +185,12 @@ function setPageBackgroundColor() {
     });
 }
 
+function setPageTextColor() {
+    chrome.storage.sync.get("color", ({ color }) => {
+    document.body.style.color = color;
+    });
+}
+
 function setPageFontFamily() {
     chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
         document.body.style.fontFamily = fontFamily;
@@ -160,7 +198,7 @@ function setPageFontFamily() {
     });
 }
 
-/* this one is not good because it uses prevcolor. use other setPageBackgroundColor function above
+/* this one is not good because it uses prevcolor. use other setPageBackgroundColor function above.
 function setPageBackgroundColor() {
     chrome.storage.sync.get("prevColor", ({ prevColor }) => {
         document.body.style.backgroundColor = prevColor;
@@ -168,6 +206,7 @@ function setPageBackgroundColor() {
 
 }
 */
+
 function resetCSS() {
     // reset CSS
     document.querySelectorAll('style,link[rel="stylesheet"]').forEach(item => item.remove());
@@ -202,6 +241,14 @@ function setup() {
     }
 
     chrome.storage.sync.set({ prevColor });
+
+    let prevTextColor = document.body.style.color;
+    // if no prevTextColor, assume black
+    if (prevTextColor === undefined || prevTextColor === "") {
+        prevTextColor = "#000000"
+    }
+
+    chrome.storage.sync.set({ prevTextColor });
 
     let diff = 0;
     chrome.storage.sync.set({ diff });
