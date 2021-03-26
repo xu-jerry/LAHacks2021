@@ -1,6 +1,6 @@
-# LAHacks2021
+# Caligo
 
-Chrome extension created for LA Hacks 2021.
+Chrome extension created for LA Hacks 2021, over the course of a week.
 
 ## Usage
 
