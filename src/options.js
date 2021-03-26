@@ -1,16 +1,16 @@
-let page = document.getElementById("buttonDiv");
-let selectedColor = "current";
+let colorSegment = document.getElementById("colorButtonDiv");
+let selectedColor = "currentColor";
 const presetButtonColors = ["#3aa757", "#e8453c", "#f9bb2d", "#4688f1"];
 
 // Reacts to a button click by marking the selected button and saving
 // the selection
-function handleButtonClick(event) {
+function handleColorClick(event) {
   // Remove styling from the previously selected color
-  let current = event.target.parentElement.querySelector(
+  let currentColor = event.target.parentElement.querySelector(
     `.${selectedColor}`
   );
-  if (current && current !== event.target) {
-    current.classList.remove(selectedColor);
+  if (currentColor && currentColor !== event.target) {
+    currentColor.classList.remove(selectedColor);
   }
 
   // Mark the button as selected
@@ -22,7 +22,7 @@ function handleButtonClick(event) {
 // Add a button to the page for each supplied color
 function constructOptions(buttonColors) {
   chrome.storage.sync.get("color", (data) => {
-    let currentColor = data.color;
+    let currentColorSelection = data.color;
     // For each color we were provided…
     for (let buttonColor of buttonColors) {
       // …create a button with that color…
@@ -30,14 +30,14 @@ function constructOptions(buttonColors) {
       button.dataset.color = buttonColor;
       button.style.backgroundColor = buttonColor;
 
-      // …mark the currently selected color…
-      if (buttonColor === currentColor) {
+      // …mark the currentColorly selected color…
+      if (buttonColor === currentColorSelection) {
         button.classList.add(selectedColor);
       }
 
       // …and register a listener for when that button is clicked
-      button.addEventListener("click", handleButtonClick);
-      page.appendChild(button);
+      button.addEventListener("click", handleColorClick);
+      colorSegment.appendChild(button);
     }
   });
 }
