@@ -57,6 +57,14 @@ changeBack.addEventListener("click", async () => {
 
 darken.addEventListener("click", async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.storage.sync.get("darkenActive", ({ darkenActive }) => {
+        if (!darkenActive) {
+            darken.style.backgroundColor = 'gray';
+        }
+        else {
+            darken.style.backgroundColor = 'lightgray';
+        }
+    });
 
     chrome.scripting. executeScript({
         target: {tabId: tab.id },
@@ -98,22 +106,15 @@ function refreshPage() {
         if (darkenActive) {
             chrome.storage.sync.get("diff", ({ diff }) => {
                 chrome.storage.sync.get("prevColor", ({ prevColor }) => {
-                    var elems = document.body.getElementsByTagName("*");
+                    var elems = document.body.getElementsByTagName("div");
                     Array.prototype.forEach.call(elems, function (elem) {
-                        let backgroundColor = elem.backgroundColor,
-                            color = elem.color; 
-                        if (backgroundColor == undefined) {
+                        let backgroundColor = elem.style.backgroundColor;
+                        if (backgroundColor === undefined || backgroundColor === "") {
                             backgroundColor = "#FFFFFF";
                         }
-                        if (color == undefined) {
-                            color = "#FFFFFF";
-                        }
                         console.log("prev background color: " + backgroundColor);
-                        console.log("prev color: " + color);
-                        elem.backgroundColor = RGBToHex(hexToRGB(backgroundColor), diff);
-                        elem.color = RGBToHex(hexToRGB(color), -diff);
+                        elem.style.backgroundColor = RGBToHex(hexToRGB(backgroundColor), diff);
                         console.log("background color: " + backgroundColor);
-                        console.log("color: " + color);
                     });
                     document.body.style.backgroundColor = RGBToHex(hexToRGB(prevColor), diff);
                 });
