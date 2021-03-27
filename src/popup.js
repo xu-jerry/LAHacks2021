@@ -119,7 +119,9 @@ function refreshPage() {
                         elem.style.backgroundColor = RGBToHex(hexToRGB(elem.style.prevColor), diff);
                         console.log("background color: " + elem.style.prevColor);
                     });
-                    document.body.style.backgroundColor = RGBToHex(hexToRGB(prevColor), diff);
+                    newColor = RGBToHex(hexToRGB(prevColor), diff);
+                    document.body.style.backgroundColor = newColor;
+                    document.body.style.color = invertHex(newColor);
                 });
             });
         }
@@ -189,6 +191,33 @@ function refreshPage() {
 
         return "rgb("+ +r + "," + +g + "," + +b + ")";
     }
+    // invert the hex color
+    function invertHex(h){
+        let r = 0, g = 0, b = 0;
+
+        // 3 digits
+        if (h.length == 4) {
+          r = 17*parseInt(h[1],16);
+          g = 17*parseInt(h[2],16);
+          b = 17*parseInt(h[3],16);
+      
+        // 6 digits
+        } else if (h.length == 7) {
+          r = 16*parseInt(h[1],16) + parseInt(h[2],16);
+          g = 16*parseInt(h[3],16) + parseInt(h[4],16);
+          b = 16*parseInt(h[5],16) + parseInt(h[6],16);
+        }
+        // not hex form
+        else {
+            return h;
+        }
+        // invert
+        r = (255-r).toString(16);
+        g = (255-g).toString(16);
+        b = (255-b).toString(16);
+        //convert back to hex form
+        return "#" + r + g + b;
+    }
 }
 
 
@@ -200,12 +229,19 @@ function setPageBackgroundColor() {
     });
 }
 
+function setPageTextColor() {
+    chrome.storage.sync.get("color", ({ color }) => {
+    document.body.style.color = color;
+    });
+}
+
 function setPageFontFamily() {
     chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
         document.body.style.fontFamily = fontFamily;
         console.log(fontFamily);
     });
 }
+
 
 function switchDarkenActive() {
     chrome.storage.sync.get("darkenActive", ({ darkenActive }) => {
@@ -215,6 +251,7 @@ function switchDarkenActive() {
 }
 
 /* this one is not good because it uses prevcolor. use other setPageBackgroundColor function above
+
 function setPageBackgroundColor() {
     chrome.storage.sync.get("prevColor", ({ prevColor }) => {
         document.body.style.backgroundColor = prevColor;
@@ -222,6 +259,7 @@ function setPageBackgroundColor() {
 
 }
 */
+
 function resetCSS() {
     // reset CSS
     document.querySelectorAll('style,link[rel="stylesheet"]').forEach(item => item.remove());
@@ -281,6 +319,14 @@ function setup() {
     }
 
     chrome.storage.sync.set({ prevColor });
+
+    let prevTextColor = document.body.style.color;
+    // if no prevTextColor, assume black
+    if (prevTextColor === undefined || prevTextColor === "") {
+        prevTextColor = "#000000"
+    }
+
+    chrome.storage.sync.set({ prevTextColor });
 
     let diff = 0;
     chrome.storage.sync.set({ diff });
