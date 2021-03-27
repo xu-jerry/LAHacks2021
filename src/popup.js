@@ -24,9 +24,10 @@ changeColor.addEventListener("mouseup", async () => {
     let diff = changeColor.value;
     chrome.storage.sync.set({ diff });
 
-
+    active = true;
+    chrome.storage.sync.set({ active });
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
+    console.log("change color");
     chrome.scripting.executeScript({
     target: { tabId: tab.id },
     function: refreshPage,
@@ -88,11 +89,8 @@ function refreshPage() {
   ////////////////////////
   chrome.storage.sync.get("active", ({ active }) => {
         // different cases for whether we want script to be active
-        if (active) {
-            chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
-                document.body.style.fontFamily = fontFamily;
-            });
-        }
+        console.log(active);
+        if (active) { }
         else {
             chrome.storage.sync.get("prevFontFamily", ({ prevFontFamily }) => {
                 document.body.style.fontFamily = prevFontFamily;
