@@ -85,12 +85,10 @@ function refreshPage() {
   ////////////////////////
     chrome.storage.sync.get("diff", ({ diff }) => {
         chrome.storage.sync.get("prevColor", ({ prevColor }) => {
-            document.body.style.backgroundColor = RGBToHex(hexToRGB(prevColor), diff);
+            newColor = RGBToHex(hexToRGB(prevColor), diff);
+            document.body.style.backgroundColor = newColor;
+            document.body.style.color = invertHex(newColor);
         });
-    });
-
-    chrome.storage,sync.get("color", ({ color }) => {
-        document.body.style.color = invertHex(color);
     });
 
     // helper functions for color manipulation
@@ -152,27 +150,26 @@ function refreshPage() {
 
         // 3 digits
         if (h.length == 4) {
-          r = 17*h[1];
-          g = 17*h[2];
-          b = 17*h[3];
+          r = 17*parseInt(h[1],16);
+          g = 17*parseInt(h[2],16);
+          b = 17*parseInt(h[3],16);
       
         // 6 digits
         } else if (h.length == 7) {
-          r = 16*h[1] + h[2];
-          g = 16*h[3] + h[4];
-          b = 16*h[5] + h[6];
+          r = 16*parseInt(h[1],16) + parseInt(h[2],16);
+          g = 16*parseInt(h[3],16) + parseInt(h[4],16);
+          b = 16*parseInt(h[5],16) + parseInt(h[6],16);
         }
         // not hex form
         else {
             return h;
         }
         // invert
-        r = 255-r;
-        g = 255-g;
-        b = 255-b;
+        r = (255-r).toString(16);
+        g = (255-g).toString(16);
+        b = (255-b).toString(16);
         //convert back to hex form
-        h = "" + h[0] + r + g + b;
-        return h;
+        return "#" + r + g + b;
     }
 }
 
