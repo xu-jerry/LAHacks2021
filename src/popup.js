@@ -112,9 +112,12 @@ function refreshPage() {
                         if (backgroundColor === undefined || backgroundColor === "") {
                             backgroundColor = "#FFFFFF";
                         }
-                        console.log("prev background color: " + backgroundColor);
-                        elem.style.backgroundColor = RGBToHex(hexToRGB(backgroundColor), diff);
-                        console.log("background color: " + backgroundColor);
+                        if (elem.style.prevColor === undefined) {
+                            elem.style.prevColor = backgroundColor;
+                        }
+                        console.log("prev background color: " + elem.style.prevColor);
+                        elem.style.backgroundColor = RGBToHex(hexToRGB(elem.style.prevColor), diff);
+                        console.log("background color: " + elem.style.prevColor);
                     });
                     document.body.style.backgroundColor = RGBToHex(hexToRGB(prevColor), diff);
                 });
