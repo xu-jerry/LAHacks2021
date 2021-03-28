@@ -264,19 +264,6 @@ function setPageBackgroundColor() {
 function resetCSS() {
     // reset CSS
     document.querySelectorAll('style,link[rel="stylesheet"]').forEach(item => item.remove());
-
-    // insert new CSS
-    /*
-    var cssId = 'myCss';  // you could encode the css path itself to generate id..
-    var head  = document.getElementsByTagName('head')[0];
-    var link  = document.createElement('link');
-    link.id   = cssId;
-    link.rel  = 'stylesheet';
-    link.type = 'text/css';
-    link.href = 'https://www.w3schools.com/w3css/4/w3.css';
-    link.media = 'all';
-    head.appendChild(link);
-    */
 }
 
 
