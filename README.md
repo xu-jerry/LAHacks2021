@@ -1,6 +1,8 @@
 # Caligo
 
-Chrome extension created for LA Hacks 2021, over the course of a week. This extension allows you to enable dark mode and change the default fonts on any webpage! We created this using HTML/CSS, Javascript, and Chrome's APIs.
+> Caligo - (latin) darkness
+
+Caligo is a Chrome extension created over the course of a week for LA Hacks 2021, Level Up track. This extension allows you to enable dark mode and change the default fonts on any webpage! We created this using HTML/CSS, Javascript, and Chrome's APIs.
 
 ## Table of Contents
 
