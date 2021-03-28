@@ -7,6 +7,9 @@ chrome.storage.sync.get("color", ({ color }) => {
     changeColor.style.backgroundColor = color;
 });
 
+let setupalready = false;
+chrome.storage.sync.set({setupalready});
+
 // get previous colors and font families
 window.onload = async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -244,48 +247,26 @@ function resetCSS() {
 function setup() {
     let prevFontFamily = document.body.style.fontFamily;
     chrome.storage.sync.set({ prevFontFamily });
-
-    // need to somehow fix this being run more than once
-    /*
-    chrome.storage.local.get("prevColor", () => {
-        if (!(chrome.runtime.lastError))
-        {
-            console.log("break");
-            console.log(chrome.runtime.lastError);
-            //console.log(prevColor);
-            return;
-        }
-
+   chrome.storage.sync.get("setupalready", ({ setupalready }) => {
+       if (setupalready) {
+           return;
+       }
+       else {
         let prevColor = document.body.style.backgroundColor;
-        console.log(prevColor);
-    
+
         // if no prevColor, assume white
         if (prevColor === undefined || prevColor === "") {
             prevColor = "#FFFFFF";
         }
     
-        console.log(prevColor);
         chrome.storage.sync.set({ prevColor });
     
         let diff = 0;
         chrome.storage.sync.set({ diff });
-        let setup = true;
-        chrome.storage.sync.set({ setup });
-    });
-    */
-    let prevColor = document.body.style.backgroundColor;
-
-    // if no prevColor, assume white
-    if (prevColor === undefined || prevColor === "") {
-        prevColor = "#FFFFFF";
-    }
-
-    chrome.storage.sync.set({ prevColor });
-
-    let diff = 0;
-    chrome.storage.sync.set({ diff });
-    let setup = true;
-    chrome.storage.sync.set({ setup });
-    let darkenActive = false;
-    chrome.storage.sync.set({ darkenActive });
+        let setupalready = true;
+        chrome.storage.sync.set({ setupalready });
+        let darkenActive = false;
+        chrome.storage.sync.set({ darkenActive });
+       }
+   });
 }
