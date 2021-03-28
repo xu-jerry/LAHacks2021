@@ -1,16 +1,11 @@
-// Initialize button with user's preferred color
+// initialize variables
 let changeColor = document.getElementById("changeColor");
 let remove = document.getElementById("remove");
 let darken = document.getElementById("darken");
-
-chrome.storage.sync.get("color", ({ color }) => {
-    changeColor.style.backgroundColor = color;
-});
-
 let setupalready = false;
 chrome.storage.sync.set({setupalready});
 
-// get previous colors and font families
+// setup on first load
 window.onload = async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -20,23 +15,24 @@ window.onload = async () => {
     });
 }
 
-// When the button is clicked, refresh page with script active
-
+// When the slider is clicked, refresh page with script active
 changeColor.addEventListener("mouseup", async () => {
-    // adjust this later
+    // get the value from slider
     let diff = changeColor.value;
     chrome.storage.sync.set({ diff });
 
     active = true;
     chrome.storage.sync.set({ active });
+
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    console.log("change color");
+
     chrome.scripting.executeScript({
     target: { tabId: tab.id },
     function: refreshPage,
     });
 });
 
+// change font family when button is clicked
 changeFontFamily.addEventListener("click", async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -47,7 +43,6 @@ changeFontFamily.addEventListener("click", async () => {
 });
 
 // change color and font family back when second button is pressed
-
 changeBack.addEventListener("click", async () => {
     active = false;
     chrome.storage.sync.set({ active });
@@ -59,6 +54,7 @@ changeBack.addEventListener("click", async () => {
     });
 });
 
+// allow slider to work or not work
 darken.addEventListener("click", async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     chrome.storage.sync.get("darkenActive", ({ darkenActive }) => {
@@ -105,20 +101,20 @@ function refreshPage() {
   ////////////////////////
     chrome.storage.sync.get("darkenActive", ({ darkenActive }) => {
         if (darkenActive) {
+            // iterate though each div, make the background color darker by diff, text lighter by diff
             chrome.storage.sync.get("diff", ({ diff }) => {
                 chrome.storage.sync.get("prevColor", ({ prevColor }) => {
                     var elems = document.body.getElementsByTagName("div");
                     Array.prototype.forEach.call(elems, function (elem) {
                         let backgroundColor = elem.style.backgroundColor;
+                        // if undefined, assume white
                         if (backgroundColor === undefined || backgroundColor === "") {
                             backgroundColor = "#FFFFFF";
                         }
                         if (elem.style.prevColor === undefined) {
                             elem.style.prevColor = backgroundColor;
                         }
-                        console.log("prev background color: " + elem.style.prevColor);
                         elem.style.backgroundColor = RGBToHex(hexToRGB(elem.style.prevColor), diff);
-                        console.log("background color: " + elem.style.prevColor);
                     });
                     newColor = RGBToHex(hexToRGB(prevColor), diff);
                     document.body.style.backgroundColor = newColor;
@@ -127,11 +123,11 @@ function refreshPage() {
             });
         }
         else {
+            // disable slider, don't change any colors
             darken.disabled = true;
             chrome.storage.sync.get("prevColor", ({ prevColor }) => {
                 document.body.style.backgroundColor = prevColor;
             });
-            console.log(prevColor);
         }
     });
 
@@ -221,75 +217,63 @@ function refreshPage() {
     }
 }
 
-
-// The body of this function will be executed as a content script inside the
-// current page
-function setPageBackgroundColor() {
-    chrome.storage.sync.get("color", ({ color }) => {
-    document.body.style.backgroundColor = color;
-    });
-}
-
 function setPageTextColor() {
+    // change the current text color
     chrome.storage.sync.get("color", ({ color }) => {
     document.body.style.color = color;
     });
 }
 
 function setPageFontFamily() {
+    // change the current font family
     chrome.storage.sync.get("fontFamily", ({ fontFamily }) => {
         document.body.style.fontFamily = fontFamily;
         console.log(fontFamily);
     });
 }
 
-
 function switchDarkenActive() {
+    // change if darken is active or not
     chrome.storage.sync.get("darkenActive", ({ darkenActive }) => {
         darkenActive = !darkenActive;
         chrome.storage.sync.set({ darkenActive });
     });
 }
 
-/* this one is not good because it uses prevcolor. use other setPageBackgroundColor function above
-
-function setPageBackgroundColor() {
-    chrome.storage.sync.get("prevColor", ({ prevColor }) => {
-        document.body.style.backgroundColor = prevColor;
-        });
-
-}
-*/
-
 function resetCSS() {
-    // reset CSS
+    // loop through all items, remove CSS for each
     document.querySelectorAll('style,link[rel="stylesheet"]').forEach(item => item.remove());
 }
 
 
 function setup() {
+    // get previous font family
     let prevFontFamily = document.body.style.fontFamily;
     chrome.storage.sync.set({ prevFontFamily });
-   chrome.storage.sync.get("setupalready", ({ setupalready }) => {
-       if (setupalready) {
-           return;
-       }
-       else {
-        let prevColor = document.body.style.backgroundColor;
 
-        // if no prevColor, assume white
-        if (prevColor === undefined || prevColor === "") {
-            prevColor = "#FFFFFF";
+    // check if already set up
+    chrome.storage.sync.get("setupalready", ({ setupalready }) => {
+        if (setupalready) {
+            return;
         }
-    
-        chrome.storage.sync.set({ prevColor });
-    
-        let diff = 0;
-        chrome.storage.sync.set({ diff });
-        let setupalready = true;
-        chrome.storage.sync.set({ setupalready });
-        let darkenActive = false;
-        chrome.storage.sync.set({ darkenActive });
-       }
+        else {
+            // set previous background color
+            let prevColor = document.body.style.backgroundColor;
+
+            // if no prevColor, assume white
+            if (prevColor === undefined || prevColor === "") {
+                prevColor = "#FFFFFF";
+            }
+        
+            chrome.storage.sync.set({ prevColor });
+
+            // initialize basic variables
+            let diff = 0;
+            chrome.storage.sync.set({ diff });
+            let setupalready = true;
+            chrome.storage.sync.set({ setupalready });
+            let darkenActive = false;
+            chrome.storage.sync.set({ darkenActive });
+        }
    });
 }
